@@ -69,7 +69,8 @@ input:focus {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
     width: 600px;
-    flex-basis: 600px;
+    min-height: 600px;
+    flex: 0 0 600px;
 }
 
 .cell:nth-child(-n+3) {

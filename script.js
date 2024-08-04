@@ -19,11 +19,37 @@ const Gameboard = (function() {
     }
 
     function updateGameBoard(xIndex, yIndex, value) {
-        gameboard[xIndex][yIndex] = value    
+        if(!gameboard[xIndex][yIndex]) {
+            gameboard[xIndex][yIndex] = value;
+            console.log("cell is getting updated");
+            return;
+        }
+
+        console.log("cell is already occupied");
     }
 
     function checkStatus() {
-       
+        //row win status
+        for(let i = 0; i < 3; i++) {
+            if(gameboard[i][0] == gameboard[i][1] && gameboard[i][1] == gameboard[i][2]) {
+                return true;
+            }
+        }
+        //column win status
+        for(let i = 0; i < 3; i++) {
+            if(gameboard[0][i] = gameboard[1][i] && gameboard[1][i] == gameboard[2][i]){
+                return true;
+            }
+        }
+
+        //diagonal win status
+        if(gameboard[0][0] == gameboard[1][1] && gameboard[1][1] == gameboard[2][2]) {
+            return true;
+        }
+        
+        if(gameboard[0][3] == gameboard[1][1] && gameboard[1][1] == gameboard[3][0]) {
+            return true;
+        }
     }
 
     return {
