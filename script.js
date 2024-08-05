@@ -7,49 +7,47 @@ const Gameboard = (function() {
 
     function renderBoard() {
         document.querySelectorAll(".cell").forEach((cell) => {
-            const dataId = cell.getAttribute("data-id");
-            if(dataId > 0 && dataId <= 3) {
-                cell.textContent = gameboard[0][dataId-1];
-            } else if (dataId > 3 && dataId <= 6) {
-                cell.textContent = gameboard[1][dataId-1];
-            } else if (dataId > 6 && dataId <= 9) {
-                cell.textContent = gameboard[2][dataId-1];
-            }
+            const dataId = parseInt(cell.getAttribute("data-id"));
+            const row = Math.floor((dataId - 1) / 3); 
+            const column = (dataId - 1) % 3;
+            cell.textContent = gameboard[row][column];
         })
     }
 
-    function updateGameBoard(xIndex, yIndex, value) {
-        if(!gameboard[xIndex][yIndex]) {
-            gameboard[xIndex][yIndex] = value;
-            console.log("cell is getting updated");
-            return;
+    function updateGameBoard(row, column, value) {
+        if(gameboard[row][column] === "") {
+            gameboard[row][column] = value;
+            return true;
         }
-
-        console.log("cell is already occupied");
+        return false;
     }
 
     function checkStatus() {
         //row win status
         for(let i = 0; i < 3; i++) {
-            if(gameboard[i][0] == gameboard[i][1] && gameboard[i][1] == gameboard[i][2]) {
-                return true;
+            if(gameboard[i][0] !== "" && gameboard[i][0] === gameboard[i][1] && gameboard[i][1] === gameboard[i][2]) {
+                return gameboard[i][0];
             }
-        }
-        //column win status
-        for(let i = 0; i < 3; i++) {
-            if(gameboard[0][i] = gameboard[1][i] && gameboard[1][i] == gameboard[2][i]){
-                return true;
+            if(gameboard[0][i] !== "" && gameboard[0][i] === gameboard[1][i] && gameboard[1][i] === gameboard[2][i]){
+                return gameboard[0][i];
             }
         }
 
         //diagonal win status
-        if(gameboard[0][0] == gameboard[1][1] && gameboard[1][1] == gameboard[2][2]) {
-            return true;
+        if(gameboard[0][0] !== "" && gameboard[0][0] === gameboard[1][1] && gameboard[1][1] === gameboard[2][2]) {
+            return gameboard[0][0];
         }
-        
-        if(gameboard[0][3] == gameboard[1][1] && gameboard[1][1] == gameboard[3][0]) {
-            return true;
+
+        if(gameboard[0][2] !== "" && gameboard[0][2] === gameboard[1][1] && gameboard[1][1] === gameboard[2][0]) {
+            return gameboard[0][2];
         }
+
+        //draw status
+        if(gameboard.every(row => row.every(cell => cell !== ""))) {
+            return "draw";
+        }
+
+        return false;
     }
 
     return {
@@ -59,13 +57,10 @@ const Gameboard = (function() {
     }
 })();
 
-function createUser(name) {
-
-}
-
 const Game = (function() {
     let player1, player2;
-    let isX = true;
+    let currentPlayer;
+    let isGameActive;
 
     function setPlayers() {
         const selection = document.querySelector(".selection");
@@ -80,43 +75,70 @@ const Game = (function() {
                 player2 = document.getElementById("player2").value;
                 selection.style.display = "none";
                 game.style.display = "flex";
+                startGame();
             } else {
                 form.reportValidity();
             }
         });
     }
 
-    function play() {
-        let char;
-        if(isX) {
-            char = "X";
-        } else {
-            char = "O";
-        }
+    function startGame() {
+        isGameActive = true;
+        currentPlayer = player1;
+        updateTurnInfo();
+        Gameboard.renderBoard();
+        setCellListeners();
+    }
 
+    function updateTurnInfo() {
+        const turnInfo = document.querySelector(".turn-info");
+        turnInfo.textContent = `${currentPlayer}'s turn (${currentPlayer === player1 ? 'X' : 'O'})`
+    }
+
+
+    function setCellListeners() {
         document.querySelectorAll('.cell').forEach((cell) => {
-            cell.addEventListener("click", () => {
-                const dataId = cell.getAttribute('data-id');
-                console.log(dataId);
-                if(dataId > 0 && dataId <= 3) {
-                    Gameboard.updateGameBoard(0, dataId - 1, char);
-                } else if (dataId > 3 && dataId <= 6) {
-                    Gameboard.updateGameBoard(1, dataId - 1, char);
-                } else if (dataId > 6 && dataId <= 9) {
-                    Gameboard.updateGameBoard(2, dataId - 1, char);
-                }
-                isX = !isX;
-                Gameboard.renderBoard();
-            });
+            cell.addEventListener("click", handleCellInteraction)
         });
+    }
+
+    function handleCellInteraction(event) {
+        if(!isGameActive) return;
+
+        const cell = event.target;
+        const char = currentPlayer === player1 ? 'X' : 'O';
+        const dataId = parseInt(cell.getAttribute("data-id"));
+        const row = Math.floor((dataId - 1) / 3); 
+        const column = (dataId - 1) % 3;
+
+        if(Gameboard.updateGameBoard(row, column, char)) {
+            Gameboard.renderBoard();
+            const status = Gameboard.checkStatus();
+            if(status) {
+                endGame();
+            } else {
+                currentPlayer = currentPlayer === player1 ? player2 : player1;
+                updateTurnInfo();
+            }
+        }
+    }
+
+    function endGame() {
+        isGameActive = false;
+        const turnInfo = document.querySelector(".turn-info");
+        const status = Gameboard.checkStatus();
+
+        if(status === "draw") {
+            turnInfo.textContent = "It's draw";
+        } else {
+            turnInfo.textContent = `${currentPlayer} wins!!!`
+        }
     }
 
     return {
         setPlayers,
-        play
     };
    
 })();
 
 Game.setPlayers();
-Game.play();
