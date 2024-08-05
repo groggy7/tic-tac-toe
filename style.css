@@ -104,6 +104,10 @@ input:focus {
     line-height: 1;
 }
 
+.turn-info {
+    font-size: 1.6rem;
+}
+
 #reset {
     border: none;
     background-color: rgb(96, 21, 194);
