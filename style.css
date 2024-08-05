@@ -103,3 +103,15 @@ input:focus {
     cursor: pointer;
     line-height: 1;
 }
+
+#reset {
+    border: none;
+    background-color: rgb(96, 21, 194);
+    border-radius: 8px;
+    color: white;
+    padding: 8px;
+}
+
+#reset:hover {
+    background-color: rgb(123, 70, 216);
+}

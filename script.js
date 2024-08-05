@@ -1,5 +1,5 @@
 const Gameboard = (function() {   
-    const gameboard =  [
+    let gameboard =  [
         ["", "", ""],
         ["", "", ""],
         ["", "", ""]
@@ -20,6 +20,14 @@ const Gameboard = (function() {
             return true;
         }
         return false;
+    }
+
+    function clearBoard() {
+        gameboard = [
+            ["", "", ""],
+            ["", "", ""],
+            ["", "", ""]
+        ]
     }
 
     function checkStatus() {
@@ -53,6 +61,7 @@ const Gameboard = (function() {
     return {
         updateGameBoard,
         renderBoard,
+        clearBoard,
         checkStatus
     }
 })();
@@ -133,6 +142,21 @@ const Game = (function() {
         } else {
             turnInfo.textContent = `${currentPlayer} wins!!!`
         }
+
+        const resetButton = document.createElement("button");
+        resetButton.id = "reset"
+        resetButton.textContent = "RESTART";
+        resetButton.addEventListener("click", resetGame);
+        document.querySelector(".game").appendChild(resetButton);
+    }
+
+    function resetGame() {
+        Gameboard.clearBoard();
+        Gameboard.renderBoard();
+
+        const reset = document.getElementById("reset");
+        if (reset) reset.remove();
+        startGame();
     }
 
     return {
